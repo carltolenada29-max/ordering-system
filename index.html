@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simple Ordering System</title>
+
+    <link rel="stylesheet" href="ionic.bundle.css">
+    <script type="module" src="ionic/ionic.esm.js"></script>
+
+    <style>
+        body {
+            background-color: #eef2f7;
+        }
+
+        .order-box {
+            max-width: 430px;
+            margin: 30px auto;
+            padding: 18px;
+            background-color: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-title {
+            color: #3880ff;
+            margin: 5px 0 10px 0;
+            font-size: 18px;
+        }
+
+        .receipt {
+            margin-top: 18px;
+            padding: 14px;
+            background-color: #f7f9fc;
+            border: 1px dashed #3880ff;
+            border-radius: 10px;
+            min-height: 40px;
+        }
+
+        #total {
+            text-align: center;
+            color: #2dd36f;
+            margin: 12px 0 0 0;
+        }
+
+        #message {
+            text-align: center;
+            color: #eb445a;
+            margin: 6px 0 0 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <ion-app>
+
+        <ion-header>
+            <ion-toolbar color="primary">
+                <ion-title>Simple Ordering System</ion-title>
+            </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+
+            <div class="order-box">
+
+                <h2 class="section-title">Customer Order Form</h2>
+
+                <ion-item>
+                    <ion-input id="customer" type="text" label="Customer Name:" label-placement="stacked"
+                        placeholder="Enter your name"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                    <ion-select id="product" label="Product:" label-placement="stacked"
+                        placeholder="Select a product" interface="popover">
+                        <ion-select-option value="55">Brewed Coffee - P55.00</ion-select-option>
+                        <ion-select-option value="85">Iced Latte - P85.00</ion-select-option>
+                        <ion-select-option value="95">Caramel Macchiato - P95.00</ion-select-option>
+                        <ion-select-option value="45">Cheese Bread - P45.00</ion-select-option>
+                        <ion-select-option value="70">Chicken Sandwich - P70.00</ion-select-option>
+                    </ion-select>
+                </ion-item>
+
+                <ion-item>
+                    <ion-input id="quantity" type="number" label="Quantity:" label-placement="stacked"
+                        placeholder="Enter quantity" min="1"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                    <ion-input id="cash" type="number" label="Cash Payment:" label-placement="stacked"
+                        placeholder="Enter amount paid"></ion-input>
+                </ion-item>
+
+                <ion-button expand="block" style="margin-top: 15px;" onclick="placeOrder()">
+                    Place Order
+                </ion-button>
+
+                <ion-button expand="block" color="medium" fill="outline" onclick="clearOrder()">
+                    Clear
+                </ion-button>
+
+                <div class="receipt">
+                    <div id="receipt">Your order summary will appear here.</div>
+                </div>
+
+                <h2 id="total"></h2>
+                <p id="message"></p>
+
+            </div>
+
+        </ion-content>
+
+    </ion-app>
+
+    <script>
+
+        let discountRate = 0.10;
+
+        function placeOrder() {
+
+            let customer = document.getElementById("customer").value;
+            let price = document.getElementById("product").value;
+            let quantity = document.getElementById("quantity").value;
+            let cash = document.getElementById("cash").value;
+
+            price = parseFloat(price);      // 85 -> 85.00 (money uses parseFloat)
+            quantity = parseInt(quantity);  // "3" -> 3    (pieces use parseInt)
+            cash = parseFloat(cash);
+
+            if (customer == "" || customer == null) {
+                document.getElementById("message").textContent = "Please enter your name.";
+                return;
+            }
+
+            if (isNaN(price)) {
+                document.getElementById("message").textContent = "Please select a product.";
+                return;
+            }
+
+            if (isNaN(quantity) || quantity <= 0) {
+                document.getElementById("message").textContent = "Please enter a valid quantity.";
+                return;
+            }
+
+            let subtotal = price * quantity;
+            let discount = 0;
+
+            if (quantity >= 5) {
+                discount = subtotal * discountRate;
+            }
+
+            let total = subtotal - discount;
+
+            document.getElementById("receipt").innerHTML =
+                "<b>Customer:</b> " + customer + "<br>" +
+                "<b>Unit Price:</b> P" + price.toFixed(2) + "<br>" +
+                "<b>Quantity:</b> " + quantity + "<br>" +
+                "<b>Subtotal:</b> P" + subtotal.toFixed(2) + "<br>" +
+                "<b>Discount:</b> P" + discount.toFixed(2);
+
+            document.getElementById("total").textContent = "TOTAL: P" + total.toFixed(2);
+
+            if (isNaN(cash)) {
+                document.getElementById("message").textContent = "Order placed. Enter cash payment to compute change.";
+            } else if (cash < total) {
+                document.getElementById("message").textContent =
+                    "Insufficient payment. You still need P" + (total - cash).toFixed(2) + ".";
+            } else {
+                let change = cash - total;
+                document.getElementById("message").textContent = "Change: P" + change.toFixed(2);
+            }
+        }
+
+        function clearOrder() {
+            document.getElementById("customer").value = "";
+            document.getElementById("product").value = "";
+            document.getElementById("quantity").value = "";
+            document.getElementById("cash").value = "";
+
+            document.getElementById("receipt").innerHTML = "Your order summary will appear here.";
+            document.getElementById("total").textContent = "";
+            document.getElementById("message").textContent = "";
+        }
+    </script>
+
+</body>
+
+</html>
